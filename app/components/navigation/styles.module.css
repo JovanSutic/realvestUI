@@ -1,14 +1,18 @@
 .root {
   display: flex;
   justify-content: space-between;
-  background: #0b0e11;
+  background: rgb(33,40,49);
+background: linear-gradient(90deg, rgba(33,40,49,1) 0%, rgba(26,34,49,1) 35%, rgba(16,19,43,1) 100%);
   font-family: "Roboto", sans-serif;
+  -webkit-box-shadow: -1px 7px 14px -8px rgba(99, 99, 99, 1);
+  -moz-box-shadow: -1px 7px 14px -8px rgba(99, 99, 99, 1);
+  box-shadow: -1px 7px 14px -8px rgba(99, 99, 99, 1);
 }
 
 .startNavigation {
   display: flex;
   flex-direction: row;
-  font-family: 'Nunito Sans Variable', sans-serif;
+  font-family: "Nunito Sans Variable", sans-serif;
 }
 
 .endNavigation {
@@ -81,19 +85,19 @@
 }
 
 .lang {
-    height: 38px;
-    align-self: center;
-    margin-left: 20px;
-    width: 40px;
-    border: none;
-    background: #0b0e11; 
-    color: #fff;
-    font-weight: 500;
-    font-size: 12px;
-    outline: none;
+  height: 38px;
+  align-self: center;
+  margin-left: 20px;
+  width: 40px;
+  border: none;
+  background: #10132b;
+  color: #fff;
+  font-weight: 500;
+  font-size: 12px;
+  outline: none;
 }
 
 .langOption {
-    padding: 4px;
-    height: 20px;
+  padding: 4px;
+  height: 20px;
 }
