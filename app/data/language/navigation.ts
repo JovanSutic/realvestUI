@@ -6,6 +6,8 @@ const navigation: Record<string, Record<string, string>> = {
     portfolioNav: "Portfolio",
     partnershipNav: "Partnership",
     dashboardNav: "Dashboard",
+    loginNav: "Login",
+    logoutNav: "Logout"
   },
   sr: {
     portfolioHeader: "Dobrodošli na Portfolio",
@@ -14,6 +16,8 @@ const navigation: Record<string, Record<string, string>> = {
     portfolioNav: "Portfolio",
     partnershipNav: "Saradnja",
     dashboardNav: "Pregled",
+    loginNav: "Prijavi se",
+    logoutNav: "Odjavi se"
   },
   ru: {
     portfolioHeader: "Дobro pozhalovat нa Портфолио",
@@ -22,6 +26,9 @@ const navigation: Record<string, Record<string, string>> = {
     portfolioNav: "Портфолио",
     partnershipNav: "Партнерство",
     dashboardNav: "Панель приборов",
+    loginNav: "вход",
+    logoutNav: "выйти"
+    
   },
 };
 

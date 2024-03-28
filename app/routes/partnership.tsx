@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
-import { getTranslation } from "../data/language";
+import { getTranslation } from "../data/language/navigation";
 
 export const meta: MetaFunction = () => {
   return [

@@ -1,12 +1,14 @@
 .root {
   display: flex;
   justify-content: space-between;
-  background: rgb(33,40,49);
-background: linear-gradient(90deg, rgba(33,40,49,1) 0%, rgba(26,34,49,1) 35%, rgba(16,19,43,1) 100%);
+  background: rgb(33, 40, 49);
+  background: linear-gradient(
+    90deg,
+    rgba(33, 40, 49, 1) 0%,
+    rgba(26, 34, 49, 1) 35%,
+    rgba(16, 19, 43, 1) 100%
+  );
   font-family: "Roboto", sans-serif;
-  -webkit-box-shadow: -1px 7px 14px -8px rgba(99, 99, 99, 1);
-  -moz-box-shadow: -1px 7px 14px -8px rgba(99, 99, 99, 1);
-  box-shadow: -1px 7px 14px -8px rgba(99, 99, 99, 1);
 }
 
 .startNavigation {
@@ -33,14 +35,14 @@ background: linear-gradient(90deg, rgba(33,40,49,1) 0%, rgba(26,34,49,1) 35%, rg
 .navigationList {
   list-style: none;
   padding: 0px;
-  margin: 12px;
+  margin: 4px;
   margin-left: 40px;
 }
 
 .navigationItem {
   display: inline;
   padding: 12px 8px;
-  line-height: 42px;
+  line-height: 44px;
   margin-right: 24px;
 }
 
@@ -48,7 +50,7 @@ background: linear-gradient(90deg, rgba(33,40,49,1) 0%, rgba(26,34,49,1) 35%, rg
   font-weight: 500;
   color: #ffffff;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 16px;
 }
 .link:hover {
   color: #fcd535;
@@ -62,14 +64,15 @@ background: linear-gradient(90deg, rgba(33,40,49,1) 0%, rgba(26,34,49,1) 35%, rg
   vertical-align: middle;
   overflow: hidden;
   user-select: none;
-  width: 45px;
-  height: 45px;
+  width: 36px;
+  height: 36px;
   border-radius: 100%;
 }
 
 .avatarFallback {
-  width: 100%;
-  height: 100%;
+  width: 36px;
+  height: 36px;
+  border-radius: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,4 +103,10 @@ background: linear-gradient(90deg, rgba(33,40,49,1) 0%, rgba(26,34,49,1) 35%, rg
 .langOption {
   padding: 4px;
   height: 20px;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
 }
