@@ -99,7 +99,7 @@ export default function Table<T extends object>({
   }, [data, innerData]);
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer>
+      <TableContainer sx={{ maxHeight: 460 }}>
         <MuiTable
           stickyHeader
           sx={{ minWidth: 700 }}

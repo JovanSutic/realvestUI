@@ -14,7 +14,8 @@ const mainReportWidget: Record<string, Record<string, string>> = {
     count: "Number of sales",
     averageM2: "Average price per m2",
     maxM2: "Max price per m2",
-    minM2: "Min price per m2"
+    minM2: "Min price per m2",
+    lastDate: "Last data entry:"
   },
   sr: {
     "3m": "3m",
@@ -31,7 +32,8 @@ const mainReportWidget: Record<string, Record<string, string>> = {
     count: "Broj prodaja",
     averageM2: "Prosečna cena m2",
     maxM2: "Max cena m2",
-    minM2: "Min cena m2"
+    minM2: "Min cena m2",
+    lastDate: "Poslednji unost podataka:"
   },
   ru: {
     "3m": "3m",
@@ -48,7 +50,8 @@ const mainReportWidget: Record<string, Record<string, string>> = {
     count: "Number of sales",
     averageM2: "Average price per m2",
     maxM2: "Max price per m2",
-    minM2: "Min price per m2"
+    minM2: "Min price per m2",
+    lastDate: "Poslednji unost podataka:"
   },
 };
 

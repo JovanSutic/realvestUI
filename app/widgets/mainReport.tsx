@@ -1,20 +1,18 @@
-import {
-  Box,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-  Divider,
-} from "@mui/material";
+import { Box, Typography, Divider } from "@mui/material";
 import { useSearchParams } from "@remix-run/react";
 import { WidgetWrapper } from "../components/layout";
 import Select from "../components/select";
 import Table from "../components/table";
 import { MainReportTableData, listMainReportData } from "../utils/reports";
 import { getTranslation } from "../data/language/widgets";
+import ToggleButtons from "../components/toggleButtons";
+import { setDateString } from "../utils/dateTime";
 const MainReport = ({
   data,
+  validUntil,
 }: {
   data: Record<string, MainReportTableData>;
+  validUntil: string;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const lang = searchParams.get("lang");
@@ -22,16 +20,26 @@ const MainReport = ({
   const type = searchParams.get("type");
   const rangeOptions = ["3m", "6m", "1y", "3y", "5y", "10y"];
   const tableHeaders = [
-    { key: "municipality", name: getTranslation(lang!,"municipality") },
-    { key: "count", name: getTranslation(lang!,"count"), sortable: true },
+    { key: "municipality", name: getTranslation(lang!, "municipality") },
+    { key: "count", name: getTranslation(lang!, "count"), sortable: true },
     {
       key: "averageM2",
-      name: getTranslation(lang!,"averageM2"),
+      name: getTranslation(lang!, "averageM2"),
       sortable: true,
       financial: true,
     },
-    { key: "maxM2", name: getTranslation(lang!,"maxM2"), sortable: true, financial: true },
-    { key: "minM2", name: getTranslation(lang!,"minM2"), sortable: true, financial: true },
+    {
+      key: "maxM2",
+      name: getTranslation(lang!, "maxM2"),
+      sortable: true,
+      financial: true,
+    },
+    {
+      key: "minM2",
+      name: getTranslation(lang!, "minM2"),
+      sortable: true,
+      financial: true,
+    },
   ];
   return (
     <WidgetWrapper>
@@ -47,47 +55,23 @@ const MainReport = ({
       >
         <Box>
           <Typography variant="h5" component="h5">
-            {getTranslation(lang!,"widgetTitle")}
+            {getTranslation(lang!, "widgetTitle")}
           </Typography>
         </Box>
         <Box>
-          <ToggleButtonGroup
-            value={range}
-            exclusive
-            onChange={(event, value) => {
+          <ToggleButtons
+            value={range!}
+            onChange={(value) => {
               setSearchParams((prev) => {
                 prev.set("range", value || "3m");
                 return prev;
-              });
+              }, { preventScrollReset: true });
             }}
-            aria-label="Platform"
-          >
-            {rangeOptions.map((option) => (
-              <ToggleButton
-                key={option}
-                value={option}
-                sx={{
-                  padding: "4px 8px",
-                  background: "#eeeeee",
-                  color: "#161b2f",
-                  "&:hover": {
-                    background: "#cfcfcf",
-                    color: "#161b2f",
-                  },
-                  "&.Mui-selected": {
-                    color: " #eeeeee",
-                    background: "#161b2f",
-                    "&:hover": {
-                      color: " #eeeeee",
-                      background: "#31343f",
-                    },
-                  },
-                }}
-              >
-                {getTranslation(lang!,option)}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
+            options={rangeOptions.map((item) => ({
+              value: item,
+              text: getTranslation(lang!, item),
+            }))}
+          />
         </Box>
       </Box>
       <Divider />
@@ -123,16 +107,25 @@ const MainReport = ({
                 setSearchParams((prev) => {
                   prev.set("type", value || "residential");
                   return prev;
-                });
+                }, { preventScrollReset: true });
               }}
               options={[
-                { value: "residential", text: getTranslation(lang!,"residentialType")},
-                { value: "commercial", text: getTranslation(lang!,"commercialType") },
-                { value: "parking", text: getTranslation(lang!,"parkingType") },
+                {
+                  value: "residential",
+                  text: getTranslation(lang!, "residentialType"),
+                },
+                {
+                  value: "commercial",
+                  text: getTranslation(lang!, "commercialType"),
+                },
+                {
+                  value: "parking",
+                  text: getTranslation(lang!, "parkingType"),
+                },
               ]}
             />
             <Typography variant="body2" component="h6">
-              Last reported data: February 2024
+              {`${getTranslation(lang!, "lastDate")} ${setDateString(validUntil, lang!)}`}
             </Typography>
           </Box>
         </Box>

@@ -20,12 +20,28 @@ export type MainReportTableData = {
   minM2: number;
 };
 
-const setNewAverage = (numA: number, numB: number): number => {
-  if (numA === 0 && numB === 0) return 0;
-  if (numA === 0) return numB;
-  if (numB === 0) return numA;
+type MainReportTableCalculation = {
+  municipality?: string;
+  count: number;
+  averageM2: number[];
+  maxM2: number;
+  minM2: number;
+};
 
-  return roundNumberToDecimal((numA + numB) / 2, 2);
+const packageTheReport = (
+  calculation: Record<string, MainReportTableCalculation>
+): Record<string, MainReportTableData> => {
+  const result: Record<string, MainReportTableData> = {};
+
+  Object.keys(calculation).forEach((key) => {
+    const average = calculation[key].averageM2.length ? calculation[key].averageM2.reduce((a: number, b: number) => a + b, 0) / calculation[key].averageM2.length : 0;
+    result[key] = {
+      ...calculation[key],
+      averageM2: roundNumberToDecimal(average, 2),
+    };
+  });
+
+  return result;
 };
 
 const setNewMin = (numA: number, numB: number): number => {
@@ -41,24 +57,25 @@ const setNewMin = (numA: number, numB: number): number => {
 export const getDataForMainReport = (
   reports: MainReportType[]
 ): Record<string, MainReportTableData> => {
-  const result: Record<string, MainReportTableData> = {};
+  const result: Record<string, MainReportTableCalculation> = {};
+  let test = 0;
 
   for (let index = 0; index < reports.length; index++) {
     const element = reports[index];
+    if (element.municipality.id === 1) {
+      test = test + element.average_meter_price;
+    }
     if (!result[element.municipality.name]) {
       result[element.municipality.name] = {
         count: element.count,
-        averageM2: element.average_meter_price,
+        averageM2:
+          element.average_meter_price > 0 ? [element.average_meter_price] : [],
         maxM2: element.max_average,
         minM2: element.min_average,
       };
     } else {
       result[element.municipality.name].count =
         result[element.municipality.name].count + element.count;
-      result[element.municipality.name].averageM2 = setNewAverage(
-        result[element.municipality.name].averageM2,
-        element.average_meter_price
-      );
       result[element.municipality.name].maxM2 =
         element.max_average > result[element.municipality.name].maxM2
           ? roundNumberToDecimal(element.max_average, 2)
@@ -67,10 +84,15 @@ export const getDataForMainReport = (
         result[element.municipality.name].minM2,
         element.min_average
       );
+      if (element.average_meter_price > 0) {
+        result[element.municipality.name].averageM2.push(
+          element.average_meter_price
+        );
+      }
     }
   }
 
-  return result;
+  return packageTheReport(result);
 };
 
 export const listMainReportData = (
