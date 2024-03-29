@@ -24,29 +24,32 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     process.env.SUPABASE_URL_LOCAL!,
     process.env.SUPABASE_KEY_LOCAL!
   );
-  const {data: reports, error} = await supabase.from("contract_report").select(`id, count, average_meter_price, min_average, max_average, municipality(
+
+  const {data: reports, error} = await supabase.from("contract_report").select(`id, count, average_meter_price, min_average, max_average, date_to, municipality(
     id, name
-  )`).eq("type", `${searchType}`).gte("date_from", getDbDateString(startDate!));
+  )`).eq("type", `${searchType}`).gt("date_from", getDbDateString(startDate!));
   if (error) {
     console.log(error);
   }
 
   if(reports?.length) {
-    const result = getDataForMainReport(reports as unknown as MainReportType[]);
-    return json(result);
+    return json({
+      mainReportData: getDataForMainReport(reports as unknown as MainReportType[]),
+      lastDate: reports[reports.length - 1].date_to, 
+    });
   }
 
   return json({ ok: true });
 };
 
 export default function Index() {
-  const data: Record<string, MainReportTableData> = useLoaderData();
+  const {mainReportData, lastDate}: {mainReportData: Record<string, MainReportTableData>; lastDate: string} = useLoaderData();
   
   return (
     <Page>
       <Line>
         <Column size={2}>
-          <MainReport data={data} />
+          <MainReport data={mainReportData} validUntil={lastDate}  />
         </Column>
       </Line>
     </Page>
