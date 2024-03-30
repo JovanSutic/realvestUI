@@ -23,7 +23,6 @@ export default function Select({
     <FormControl
       sx={{
         margin: "2px",
-        textAlign: "center",
         verticalAlign: "super",
         minWidth: 120,
       }}

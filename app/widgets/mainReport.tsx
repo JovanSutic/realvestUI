@@ -4,7 +4,7 @@ import { WidgetWrapper } from "../components/layout";
 import Select from "../components/select";
 import Table from "../components/table";
 import { MainReportTableData, listMainReportData } from "../utils/reports";
-import { getTranslation } from "../data/language/widgets";
+import { getTranslation } from "../data/language/dashboard";
 import ToggleButtons from "../components/toggleButtons";
 import { setDateString } from "../utils/dateTime";
 const MainReport = ({
@@ -63,7 +63,7 @@ const MainReport = ({
             value={range!}
             onChange={(value) => {
               setSearchParams((prev) => {
-                prev.set("range", value || "3m");
+                prev.set("range", value || range!);
                 return prev;
               }, { preventScrollReset: true });
             }}
@@ -135,6 +135,7 @@ const MainReport = ({
             flexDirection: "column",
             alignSelf: "flex-start",
             width: "100%",
+            mb: "20px"
           }}
         >
           <Table headers={tableHeaders} data={listMainReportData(data)} />

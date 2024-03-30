@@ -19,17 +19,6 @@ const navigation: Record<string, Record<string, string>> = {
     loginNav: "Prijavi se",
     logoutNav: "Odjavi se"
   },
-  ru: {
-    portfolioHeader: "Дobro pozhalovat нa Портфолио",
-    partnershipHeader: "Дobro pozhalovat нa Партнерство",
-    dashboardHeader: "Дobro pozhalovat нa Панель приборов",
-    portfolioNav: "Портфолио",
-    partnershipNav: "Партнерство",
-    dashboardNav: "Панель приборов",
-    loginNav: "вход",
-    logoutNav: "выйти"
-    
-  },
 };
 
 export const getTranslation = (language: string, position: string): string => {

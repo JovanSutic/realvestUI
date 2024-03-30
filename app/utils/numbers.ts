@@ -6,6 +6,10 @@ export const isNumber = (value: string | number): boolean => {
   return !Number.isNaN(Number(value.replace(",", ".")));
 };
 
+export const makeNumberCurrency = (num: number, currency: string = "€") => {
+  return `${num.toLocaleString(undefined, { maximumFractionDigits: 2 })}${currency}`;
+}
+
 export const roundNumberToDecimal = (
   num: number,
   decimalPlace: number
