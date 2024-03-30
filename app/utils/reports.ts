@@ -1,4 +1,26 @@
-import { roundNumberToDecimal } from "./numbers";
+import { getTranslation } from "../data/language/dashboard";
+import { DropdownOptions } from "../components/dropdown";
+import { makeNumberCurrency, roundNumberToDecimal } from "./numbers";
+
+export type GeneralObject = { id: number; name: string };
+const propertyType = ['residential', 'parking', 'commercial'] as const;
+export type PropertyType = (typeof propertyType)[number];
+
+export type PieReportType = {
+  id: number;
+  price_map: number[];
+  average_price_map: number[];
+  municipality: {
+    id: number;
+    name: string;
+  };
+};
+
+export type PieChartData = { labels: string[]; data: number[] };
+
+export type LangType = 'en' | 'sr';
+
+export type PieReportKey = "price_map" | "average_price_map";
 
 export type MainReportType = {
   id: number;
@@ -34,7 +56,10 @@ const packageTheReport = (
   const result: Record<string, MainReportTableData> = {};
 
   Object.keys(calculation).forEach((key) => {
-    const average = calculation[key].averageM2.length ? calculation[key].averageM2.reduce((a: number, b: number) => a + b, 0) / calculation[key].averageM2.length : 0;
+    const average = calculation[key].averageM2.length
+      ? calculation[key].averageM2.reduce((a: number, b: number) => a + b, 0) /
+        calculation[key].averageM2.length
+      : 0;
     result[key] = {
       ...calculation[key],
       averageM2: roundNumberToDecimal(average, 2),
@@ -106,4 +131,49 @@ export const listMainReportData = (
   }
 
   return result;
+};
+
+export const getOptions = (list: GeneralObject[]): DropdownOptions[] => {
+  return list.map((item) => ({ value: `${item.id}`, text: item.name }));
+};
+
+const getPieSpread = (key: PieReportKey, isParking: boolean): number[] => {
+  if(isParking && key !== "average_price_map") return [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000];
+  if (key === "average_price_map")
+    return [1000, 1500, 2000, 2500, 3000, 3500, 4000];
+  return [50000, 100000, 150000, 200000, 250000, 300000, 350000, 400000];
+};
+
+export const getDataForPie = (
+  list: PieReportType[],
+  numericKey: PieReportKey,
+  propertyType: PropertyType,
+  lang: LangType = 'en',
+): PieChartData => {
+  const total: number[] = [];
+  list.forEach((item) => total.push(...item[numericKey]));
+  total.sort((a: number, b: number) => a - b);
+  const spread = getPieSpread(numericKey, propertyType === "parking");
+  let start = 0;
+  const result: Record<string, number[]> = {};
+  for (let index = 0; index < spread.length; index++) {
+    const element = spread[index];
+    const mark = total.findIndex((item) => item >= element);
+    const slice = mark > 0 ? total.slice(start, mark) : total.slice(start);
+    if (slice.length) {
+      result[`${getTranslation(lang, "pieUpto")} ${makeNumberCurrency(element)}`] = slice;
+    }
+    start = mark > 0 ? mark : total.length;
+
+    if (index === spread.length - 1) {
+      if (total.slice(mark).length && mark > 0) {
+        result[`${getTranslation(lang, "pieFrom")} ${makeNumberCurrency(element)}`] = total.slice(mark);
+      }
+    }
+  }
+
+  return {
+    labels: Object.keys(result),
+    data: Object.keys(result).map((key) => result[key].length),
+  };
 };

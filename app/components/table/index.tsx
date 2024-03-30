@@ -12,6 +12,7 @@ import {
   TableRow,
   Paper,
 } from "@mui/material";
+import { makeNumberCurrency } from "../../utils/numbers";
 
 export type TableHeader = {
     key: string;
@@ -22,13 +23,13 @@ export type TableHeader = {
 
 const renderTableValue = (reference: string, value: string | number, headers: TableHeader[]): string => {
     const header = headers.find((item) => item.key === reference);
-    if (header?.financial) return `${value}€`;
+    if (header?.financial) return makeNumberCurrency(value as number);
     return `${value}`;
 }
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#1e2531",
     color: theme.palette.secondary.main,
     fontSize: 14,
     fontFamily: "Nunito Sans Variable, sans-serif",
@@ -96,7 +97,7 @@ export default function Table<T extends object>({
     if (!innerData.length || !sort.column) {
       setInnerData(data);
     }
-  }, [data, innerData]);
+  }, [data, innerData, sort.column]);
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
       <TableContainer sx={{ maxHeight: 460 }}>

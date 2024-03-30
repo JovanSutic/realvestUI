@@ -27,17 +27,17 @@ const ToggleButtons = ({
           sx={{
             padding: "4px 8px",
             background: "#eeeeee",
-            color: "#161b2f",
+            color: "#13182d",
             "&:hover": {
               background: "#cfcfcf",
-              color: "#161b2f",
+              color: "#13182d",
             },
             "&.Mui-selected": {
-              color: " #eeeeee",
-              background: "#161b2f",
+              color: " #13182d",
+              background: "#f0b90b",
               "&:hover": {
-                color: " #eeeeee",
-                background: "#31343f",
+                color: " #13182d",
+                background: "#fcd535",
               },
             },
           }}
