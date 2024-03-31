@@ -1,6 +1,5 @@
+import { ColumnSizeType } from "../../types/component.types";
 import styles from "./styles.module.css";
-
-type ColumnSizeType = 1 | 2 | 3;
 
 export const Page = ({ children }: { children: JSX.Element }) => {
   return <div className={styles.pageWrapper}><div className={styles.page}>{children}</div></div>;

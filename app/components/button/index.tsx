@@ -1,7 +1,5 @@
+import { ButtonSizeType, ButtonVariantType } from "../../types/component.types";
 import styles from "./styles.module.css";
-
-type ButtonSizeType = "small" | "medium" | "big";
-type ButtonVariantType = "primary" | "secondary" | "tertiary";
 
 const Button = ({
   onClick,

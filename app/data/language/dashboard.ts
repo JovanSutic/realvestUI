@@ -1,4 +1,4 @@
-const dashboard: Record<string, Record<string, string>> = {
+export const dashboardMap: Record<string, Record<string, string>> = {
   en: {
     "3m": "3m",
     "6m": "6m",
@@ -26,6 +26,7 @@ const dashboard: Record<string, Record<string, string>> = {
       "To see some data here, please change the municipality, time frame or property type parameters.",
     pieAverageLabel: "Distribution for price per m2",
     pieUnitLabel:"Distribution for unit price",
+    pieChartExplanation: "*Graph show the percentages while the list shows the unit number. Price point grouping is done from one price point to the next (0 on the start), and the last one is from the last price point util the maximum."
   },
   sr: {
     "3m": "3m",
@@ -53,9 +54,6 @@ const dashboard: Record<string, Record<string, string>> = {
     pieEmptySubtitle:"Za prikaz podataka, molimo vas promenite opštinu, filter vremena ili tip nekretnine.",
     pieAverageLabel: "Raspodela za cene po m2",
     pieUnitLabel:"Raspodela za cene jedinice",
+    pieChartExplanation: "*Grafik izražava procente, dok lista predstavlja broju prodatih jedinica. Grupisanje je određeno od prethodne cene (ili 0 na početku) do sledeće cene (ili maksimuma na kraju)."
   },
-};
-
-export const getTranslation = (language: string, position: string): string => {
-  return dashboard[language][position];
 };

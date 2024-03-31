@@ -1,10 +1,6 @@
 import * as React from "react";
 import { Button, Menu, MenuItem, Fade, Box } from "@mui/material";
-
-export type DropdownOptions = {
-  value: string;
-  text: string;
-};
+import { DropdownOptions } from "../../types/component.types";
 
 function Dropdown({
   name,
