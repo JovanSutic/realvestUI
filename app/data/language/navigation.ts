@@ -1,4 +1,4 @@
-const navigation: Record<string, Record<string, string>> = {
+export const navigationMap: Record<string, Record<string, string>> = {
   en: {
     portfolioHeader: "Welcome to portfolio",
     partnershipHeader: "Welcome to partnership",
@@ -19,8 +19,4 @@ const navigation: Record<string, Record<string, string>> = {
     loginNav: "Prijavi se",
     logoutNav: "Odjavi se"
   },
-};
-
-export const getTranslation = (language: string, position: string): string => {
-  return navigation[language][position];
 };

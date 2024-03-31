@@ -1,14 +1,15 @@
 import { NavLink, useLocation, useSearchParams } from "@remix-run/react";
-import { getTranslation } from "../../data/language/navigation";
 import styles from "./styles.module.css";
 import Button from "../button";
 import { Avatar } from "@mui/material";
 import Dropdown from "../dropdown";
+import { Translator } from "../../data/language/translator";
 
 function Navigation() {
   const { pathname } = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const lang = searchParams.get("lang");
+  const translator = new Translator("navigation");
 
   const isUser = false;
 
@@ -28,7 +29,7 @@ function Navigation() {
                   : `${styles.link}`
               }
             >
-              {getTranslation(lang || "sr", "dashboardNav")}
+              {translator.getTranslation(lang || "sr", "dashboardNav")}
             </NavLink>
           </li>
           <li className={styles.navigationItem}>
@@ -40,7 +41,7 @@ function Navigation() {
                   : `${styles.link}`
               }
             >
-              {getTranslation(lang || "sr", "portfolioNav")}
+              {translator.getTranslation(lang || "sr", "portfolioNav")}
             </NavLink>
           </li>
           <li className={styles.navigationItem}>
@@ -52,7 +53,7 @@ function Navigation() {
                   : `${styles.link}`
               }
             >
-              {getTranslation(lang || "sr", "partnershipNav")}
+              {translator.getTranslation(lang || "sr", "partnershipNav")}
             </NavLink>
           </li>
         </ul>
@@ -96,14 +97,14 @@ function Navigation() {
         <div className={styles.buttons}>
           {isUser ? (
             <Button
-              text={getTranslation(lang || "sr", "logoutNav")}
+              text={translator.getTranslation(lang || "sr", "logoutNav")}
               size="small"
               variant="tertiary"
               onClick={() => console.log("Logout")}
             />
           ) : (
             <Button
-              text={getTranslation(lang || "sr", "loginNav")}
+              text={translator.getTranslation(lang || "sr", "loginNav")}
               size="small"
               variant="secondary"
               onClick={() => console.log("login")}

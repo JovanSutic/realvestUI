@@ -13,13 +13,7 @@ import {
   Paper,
 } from "@mui/material";
 import { makeNumberCurrency } from "../../utils/numbers";
-
-export type TableHeader = {
-    key: string;
-    name: string;
-    sortable?: boolean;
-    financial?: boolean;
-  };
+import { TableHeader } from "../../types/component.types";
 
 const renderTableValue = (reference: string, value: string | number, headers: TableHeader[]): string => {
     const header = headers.find((item) => item.key === reference);

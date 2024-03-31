@@ -1,54 +1,6 @@
-import { getTranslation } from "../data/language/dashboard";
-import { DropdownOptions } from "../components/dropdown";
+import { DropdownOptions } from "../types/component.types";
+import { DistributionTypeKey, GeneralObject, MainReportTableCalculation, MainReportTableData, MainReportType, PieChartData, PieReportType, PropertyType } from "../types/dashboard.types";
 import { makeNumberCurrency, roundNumberToDecimal } from "./numbers";
-
-export type GeneralObject = { id: number; name: string };
-const propertyType = ['residential', 'parking', 'commercial'] as const;
-export type PropertyType = (typeof propertyType)[number];
-
-export type PieReportType = {
-  id: number;
-  price_map: number[];
-  average_price_map: number[];
-  municipality: {
-    id: number;
-    name: string;
-  };
-};
-
-export type PieChartData = { labels: string[]; data: number[] };
-
-export type LangType = 'en' | 'sr';
-
-export type PieReportKey = "price_map" | "average_price_map";
-
-export type MainReportType = {
-  id: number;
-  count: number;
-  average_meter_price: number;
-  min_average: number;
-  max_average: number;
-  municipality: {
-    id: number;
-    name: string;
-  };
-};
-
-export type MainReportTableData = {
-  municipality?: string;
-  count: number;
-  averageM2: number;
-  maxM2: number;
-  minM2: number;
-};
-
-type MainReportTableCalculation = {
-  municipality?: string;
-  count: number;
-  averageM2: number[];
-  maxM2: number;
-  minM2: number;
-};
 
 const packageTheReport = (
   calculation: Record<string, MainReportTableCalculation>
@@ -133,11 +85,16 @@ export const listMainReportData = (
   return result;
 };
 
+export const numbersToPercentage = (list: number[]): number[] => {
+  const sum = list.reduce((total, item) => total + item);
+  return list.map((item) => (roundNumberToDecimal((item / sum) * 100, 2)));
+}
+
 export const getOptions = (list: GeneralObject[]): DropdownOptions[] => {
-  return list.map((item) => ({ value: `${item.id}`, text: item.name }));
+  return list?.map((item) => ({ value: `${item.id}`, text: item.name }));
 };
 
-const getPieSpread = (key: PieReportKey, isParking: boolean): number[] => {
+const getPieSpread = (key: DistributionTypeKey, isParking: boolean): number[] => {
   if(isParking && key !== "average_price_map") return [5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000];
   if (key === "average_price_map")
     return [1000, 1500, 2000, 2500, 3000, 3500, 4000];
@@ -146,12 +103,12 @@ const getPieSpread = (key: PieReportKey, isParking: boolean): number[] => {
 
 export const getDataForPie = (
   list: PieReportType[],
-  numericKey: PieReportKey,
+  numericKey: DistributionTypeKey,
   propertyType: PropertyType,
-  lang: LangType = 'en',
+  prefix: {upto: string; from: string;}
 ): PieChartData => {
   const total: number[] = [];
-  list.forEach((item) => total.push(...item[numericKey]));
+  list?.forEach((item) => total.push(...item[numericKey]));
   total.sort((a: number, b: number) => a - b);
   const spread = getPieSpread(numericKey, propertyType === "parking");
   let start = 0;
@@ -161,13 +118,13 @@ export const getDataForPie = (
     const mark = total.findIndex((item) => item >= element);
     const slice = mark > 0 ? total.slice(start, mark) : total.slice(start);
     if (slice.length) {
-      result[`${getTranslation(lang, "pieUpto")} ${makeNumberCurrency(element)}`] = slice;
+      result[`${prefix.upto} ${makeNumberCurrency(element)}`] = slice;
     }
     start = mark > 0 ? mark : total.length;
 
     if (index === spread.length - 1) {
       if (total.slice(mark).length && mark > 0) {
-        result[`${getTranslation(lang, "pieFrom")} ${makeNumberCurrency(element)}`] = total.slice(mark);
+        result[`${prefix.from} ${makeNumberCurrency(element)}`] = total.slice(mark);
       }
     }
   }
