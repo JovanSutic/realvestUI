@@ -4,16 +4,18 @@ import {
   Select as MuiSelect,
   SelectChangeEvent,
 } from "@mui/material";
-import { DropdownOptions } from "../dropdown";
+import { DropdownOptions } from "../../types/component.types";
 
 export default function Select({
   value,
   options,
   setValue,
+  minWidth = 120
 }: {
   value: string;
   options: DropdownOptions[];
   setValue: (value: string) => void;
+  minWidth?: number;
 }) {
   const handleChange = (event: SelectChangeEvent) => {
     setValue(event.target.value);
@@ -24,7 +26,7 @@ export default function Select({
       sx={{
         margin: "2px",
         verticalAlign: "super",
-        minWidth: 120,
+        minWidth: minWidth,
       }}
       size="small"
     >
