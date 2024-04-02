@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import { useSearchParams } from "@remix-run/react";
-import { getTranslation } from "../data/language/navigation";
+import { Translator } from "../data/language/translator";
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,10 +11,11 @@ export const meta: MetaFunction = () => {
 
 export default function Partnership() {
     const [searchParams] = useSearchParams();
+    const translator = new Translator("navigation");
     const lang = searchParams.get("lang");
     return (
       <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
-        <h1>{getTranslation((lang || 'sr'), 'partnershipHeader')}</h1>
+        <h1>{translator.getTranslation((lang!), 'partnershipHeader')}</h1>
       </div>
     );
 }

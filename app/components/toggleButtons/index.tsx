@@ -1,15 +1,31 @@
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import { DropdownOptions } from "../dropdown";
+import { ButtonSizeType, DropdownOptions } from "../../types/component.types";
 
 const ToggleButtons = ({
   options,
   onChange,
   value,
+  size = 'medium'
 }: {
   options: DropdownOptions[];
   onChange: (value: string) => void;
   value: string;
+  size?: ButtonSizeType
 }) => {
+  const sizeMap: Record<ButtonSizeType, {padding:string; fontSize: string}> = {
+    small: {
+      padding: "2px 6px",
+      fontSize: "12px"
+    },
+    medium: {
+      padding: "4px 8px",
+      fontSize: "14px"
+    },
+    big: {
+      padding: "6px 12px",
+      fontSize: "14px"
+    },
+  };
   return (
     <ToggleButtonGroup
       value={value}
@@ -18,6 +34,9 @@ const ToggleButtons = ({
         onChange(value);
       }}
       aria-label="Platform"
+      sx={{
+        padding: "4px",
+      }}
     >
       {options.map((option) => (
         <ToggleButton
@@ -25,7 +44,8 @@ const ToggleButtons = ({
           key={option.value}
           value={option.value}
           sx={{
-            padding: "4px 8px",
+            padding: sizeMap[size].padding,
+            fontSize: sizeMap[size].fontSize,
             background: "#eeeeee",
             color: "#13182d",
             "&:hover": {

@@ -7,7 +7,7 @@ export const isNumber = (value: string | number): boolean => {
 };
 
 export const makeNumberCurrency = (num: number, currency: string = "€") => {
-  return `${num.toLocaleString(undefined, { maximumFractionDigits: 2 })}${currency}`;
+  return `${(num || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}${currency}`;
 }
 
 export const roundNumberToDecimal = (

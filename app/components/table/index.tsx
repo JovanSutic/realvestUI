@@ -18,6 +18,7 @@ import { TableHeader } from "../../types/component.types";
 const renderTableValue = (reference: string, value: string | number, headers: TableHeader[]): string => {
     const header = headers.find((item) => item.key === reference);
     if (header?.financial) return makeNumberCurrency(value as number);
+    if (header?.size) return `${value} m2`;
     return `${value}`;
 }
 
@@ -59,9 +60,11 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function Table<T extends object>({
   headers,
   data,
+  height = 500,
 }: {
   headers: TableHeader[];
   data: T[];
+  height?: number;
 }) {
   const [innerData, setInnerData] = useState<T[]>([]);
   const [sort, setSort] = useState<{
@@ -94,7 +97,7 @@ export default function Table<T extends object>({
   }, [data, innerData, sort.column]);
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <TableContainer sx={{ maxHeight: 460 }}>
+      <TableContainer sx={{ maxHeight: height }}>
         <MuiTable
           stickyHeader
           sx={{ minWidth: 700 }}

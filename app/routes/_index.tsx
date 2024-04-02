@@ -3,30 +3,34 @@ import { Column, Line, Page } from "../components/layout";
 import MainReport from "../widgets/MainReport";
 import { json } from "@remix-run/node";
 import { createClient } from "@supabase/supabase-js";
-import {
-  NavLink,
-  useLoaderData,
-  useSearchParams,
-} from "@remix-run/react";
+import { NavLink, useLoaderData, useSearchParams } from "@remix-run/react";
 import {
   RangeOption,
   getDateForReport,
   getDbDateString,
 } from "../utils/dateTime";
 import {
+  getDataForMainCards,
   getDataForMainReport,
   getOptions,
 } from "../utils/reports";
 import PieReport from "../widgets/PieReport";
 import { isDashboardParamsValid } from "../utils/params";
-import { MainReportTableData, MainReportType, PieReportType } from "../types/dashboard.types";
+import {
+  CardsReport,
+  MainReportTableData,
+  MainReportType,
+  PieReportType,
+} from "../types/dashboard.types";
+import DashboardControls from "../widgets/DashboardControls";
+import DashboardCards from "../widgets/DashboardCards";
 
 const mandatorySearchParams: Record<string, string> = {
   lang: "sr",
-  timeRange: "3m",
-  propertyType: "residential",
+  time_range: "3m",
+  property_type: "residential",
   municipality: "1",
-  distributionType: "price_map",
+  distribution_type: "price_map",
 };
 
 export const meta: MetaFunction = () => {
@@ -37,8 +41,8 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const searchType = new URL(request.url).searchParams.get("propertyType");
-  const searchRange = new URL(request.url).searchParams.get("timeRange");
+  const searchType = new URL(request.url).searchParams.get("property_type");
+  const searchRange = new URL(request.url).searchParams.get("time_range");
   const searchMunicipality = new URL(request.url).searchParams.get(
     "municipality"
   );
@@ -55,12 +59,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { data: mainReports, error: mainError } = await supabase
     .from("contract_report")
     .select(
-      `id, count, average_meter_price, min_average, max_average, date_to, municipality(
+      `id, count, sum_price, average_meter_price, min_average, sum_size, max_average, date_to, municipality(
     id, name
   )`
     )
     .eq("type", `${searchType || mandatorySearchParams.propertyType}`)
-    .gt("date_from", getDbDateString(startDate!));
+    .gt("date_from", getDbDateString(startDate!, "en"))
+    .returns<MainReportType[]>();
   if (mainError) {
     console.log(mainError);
   }
@@ -77,7 +82,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       "municipality",
       `${searchMunicipality || mandatorySearchParams.municipality}`
     )
-    .gt("date_from", getDbDateString(startDate!));
+    .gt("date_from", getDbDateString(startDate!, "en"));
 
   if (pieError) {
     console.log(pieError);
@@ -93,54 +98,56 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   if (mainReports?.length) {
     return json({
-      mainReportData: getDataForMainReport(
-        mainReports as unknown as MainReportType[]
-      ),
+      mainReportData: getDataForMainReport(mainReports),
+      mainCardsData: getDataForMainCards(mainReports),
       pieReportData: pieReports || [],
       lastDate: mainReports[mainReports.length - 1].date_to,
       municipalities: municipalities || [],
+      lineReportData: mainReports.filter(
+        (item) => item.municipality.id === Number(searchMunicipality)
+      ),
     });
   }
 
   return json({ ok: true });
 };
 
-
 export default function Index() {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
-  const timeRange = searchParams.get("timeRange");
-  const propertyType = searchParams.get("propertyType");
+  const timeRange = searchParams.get("time_range");
+  const propertyType = searchParams.get("property_type");
   const municipality = searchParams.get("municipality");
-  const distributionType = searchParams.get(
-    "distributionType"
-  );
+  const distributionType = searchParams.get("distribution_type");
 
   const {
     mainReportData,
     lastDate,
     municipalities,
     pieReportData,
+    lineReportData,
+    mainCardsData,
   }: {
     mainReportData: Record<string, MainReportTableData>;
     lastDate: string;
     municipalities: { id: number; name: string }[];
     pieReportData: PieReportType[];
+    lineReportData: MainReportType[];
+    mainCardsData: CardsReport;
   } = useLoaderData();
 
-
-  if (!isDashboardParamsValid({
-    lang,
-    timeRange,
-    propertyType,
-    municipality,
-    distributionType
-  })
-    
+  if (
+    !isDashboardParamsValid({
+      lang,
+      timeRange,
+      propertyType,
+      municipality,
+      distributionType,
+    })
   ) {
     return (
       <NavLink
-        to={`/?lang=${mandatorySearchParams.lang}&timeRange=${mandatorySearchParams.timeRange}&propertyType=${mandatorySearchParams.propertyType}&municipality=${mandatorySearchParams.municipality}&distributionType=${mandatorySearchParams.distributionType}`}
+        to={`/?lang=${mandatorySearchParams.lang}&time_range=${mandatorySearchParams.time_range}&property_type=${mandatorySearchParams.property_type}&municipality=${mandatorySearchParams.municipality}&distribution_type=${mandatorySearchParams.distribution_type}`}
       >
         Sad ovde
       </NavLink>
@@ -150,12 +157,19 @@ export default function Index() {
   return (
     <Page>
       <Line>
-        <Column size={2}>
-          <MainReport data={mainReportData} validUntil={lastDate} />
+        <Column size={5}>
+          <DashboardControls validUntil={lastDate} />
+        </Column>
+      </Line>
+      <Line>
+        <Column size={3}>
+          <DashboardCards cards={mainCardsData} />
+          <MainReport data={mainReportData} />
         </Column>
         <Column size={2}>
           <PieReport
             municipalityList={getOptions(municipalities)}
+            lineData={lineReportData}
             data={pieReportData}
           />
         </Column>

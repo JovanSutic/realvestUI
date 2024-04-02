@@ -1,12 +1,57 @@
+import { Box, SxProps } from "@mui/material";
 import { ColumnSizeType } from "../../types/component.types";
-import styles from "./styles.module.css";
 
-export const Page = ({ children }: { children: JSX.Element }) => {
-  return <div className={styles.pageWrapper}><div className={styles.page}>{children}</div></div>;
+export const Page = ({
+  children,
+  style = {},
+}: {
+  children: JSX.Element | JSX.Element[];
+  style?: SxProps;
+}) => {
+  return (
+    <Box
+      sx={{
+        backgroundColor: "#EAECEF",
+        paddingTop: "20px",
+        paddingBottom: "28px",
+        width: "100%",
+      }}
+    >
+      <Box
+        sx={{
+          width: "1366px",
+          margin: "auto",
+          display: "block",
+          position: "relative",
+          ...style,
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
 };
 
-export const Line = ({ children }: { children: JSX.Element | JSX.Element[] }) => {
-  return <div className={styles.line}>{children}</div>;
+export const Line = ({
+  children,
+  style = {},
+}: {
+  children: JSX.Element | JSX.Element[];
+  style?: SxProps;
+}) => {
+  return (
+    <Box
+      sx={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        marginBottom: "20px",
+        ...style,
+      }}
+    >
+      {children}
+    </Box>
+  );
 };
 
 export const Column = ({
@@ -16,16 +61,39 @@ export const Column = ({
   children: JSX.Element | JSX.Element[];
   size: ColumnSizeType;
 }) => {
-    const setColumnStyle = () => {
-        if (size === 1) return `${styles.column} ${styles.column1}`;
-        if (size === 2) return `${styles.column} ${styles.column2}`;
-        `${styles.column} ${styles.column3}`;
-    }
-  return <div className={setColumnStyle()}>{children}</div>;
+  const width = size * 20;
+  return (
+    <Box
+      sx={{
+        padding: "0px 12px",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        width: `${width}%`
+      }}
+    >
+      {children}
+    </Box>
+  );
 };
 
-export const WidgetWrapper = ({ children }: { children: JSX.Element | JSX.Element[] }) => {
+export const WidgetWrapper = ({
+  children,
+  style = {},
+}: {
+  children: JSX.Element | JSX.Element[];
+  style?: SxProps;
+}) => {
   return (
-    <div className={styles.widget}>{children}</div>
-  )
-}
+    <Box
+      sx={{
+        backgroundColor: "#fff",
+        padding: "20px",
+        borderRadius: "8px",
+        ...style,
+      }}
+    >
+      {children}
+    </Box>
+  );
+};

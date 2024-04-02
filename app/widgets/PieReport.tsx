@@ -1,49 +1,50 @@
-import {
-  Box,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-} from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { WidgetWrapper } from "../components/layout";
 import { useSearchParams } from "@remix-run/react";
 import Select from "../components/select";
-import "chart.js/auto";
 import {
   getDataForPie,
+  getSingleLineDataset,
   numbersToPercentage,
 } from "../utils/reports";
 import ToggleButtons from "../components/toggleButtons";
 import DoughnutChart from "../components/doughnutChart";
+import { Line } from "react-chartjs-2";
 import EmptyChart from "../components/emptyChart";
 import { Translator } from "../data/language/translator";
-import { DistributionTypeKey, LangType, PieChartData, PieReportType, PropertyType } from "../types/dashboard.types";
+import {
+  DistributionTypeKey,
+  LangType,
+  MainReportType,
+  PieChartData,
+  PieReportType,
+  PropertyType,
+} from "../types/dashboard.types";
 import { DropdownOptions } from "../types/component.types";
+import { RangeOption } from "../utils/dateTime";
 
 const PieReport = ({
   municipalityList,
+  lineData,
   data,
 }: {
   municipalityList: DropdownOptions[];
+  lineData: MainReportType[];
   data: PieReportType[];
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const lang = searchParams.get("lang") as LangType;
-  const propertyType = searchParams.get("propertyType") as PropertyType;
+  const timeRange = searchParams.get("time_range") as RangeOption;
+  const propertyType = searchParams.get("property_type") as PropertyType;
   const municipality = searchParams.get("municipality");
   const distributionType = searchParams.get(
-    "distributionType"
+    "distribution_type"
   ) as DistributionTypeKey;
   const translator = new Translator("dashboard");
   const chartData: PieChartData = getDataForPie(
     data,
     distributionType,
-    propertyType!,
-    {
-      upto: translator.getTranslation(lang!, "pieUpto"),
-      from: translator.getTranslation(lang!, "pieFrom"),
-    }
+    propertyType!
   );
 
   return (
@@ -53,7 +54,6 @@ const PieReport = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          marginTop: "16px",
           boxSizing: "border-box",
         }}
       >
@@ -92,6 +92,54 @@ const PieReport = ({
             />
           </Box>
           <Divider />
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            marginTop: "20px",
+          }}
+        >
+          <Line
+            data={getSingleLineDataset(
+              lineData,
+              translator.getTranslation(lang!, `priceAverage${timeRange}`),
+              timeRange!,
+              lang!
+            )}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-expect-error
+                  onClick: (e) => e.stopPropagation(),
+                },
+                tooltip: {
+                  displayColors: false,
+                  callbacks: {
+                    label: function (context) {
+                      return `${context.formattedValue}€`;
+                    },
+                  },
+                },
+              },
+            }}
+          />
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignSelf: "flex-start",
+            width: "100%",
+            marginTop: "28px",
+            marginBottom: "28px",
+          }}
+        >
+          <Divider />
           <Box
             sx={{
               display: "flex",
@@ -100,14 +148,16 @@ const PieReport = ({
               alignItems: "center",
               width: "100%",
               marginTop: "24px",
+              marginBottom: "20px",
             }}
           >
             <ToggleButtons
               value={distributionType!}
+              size="small"
               onChange={(value) => {
                 setSearchParams(
                   (prev) => {
-                    prev.set("distributionType", value || distributionType);
+                    prev.set("distribution_type", value || distributionType);
                     return prev;
                   },
                   { preventScrollReset: true }
@@ -125,17 +175,6 @@ const PieReport = ({
               ]}
             />
           </Box>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignSelf: "flex-start",
-            width: "100%",
-            marginTop: "44px",
-            marginBottom: "20px",
-          }}
-        >
           {chartData.labels.length ? (
             <>
               <Box
@@ -145,70 +184,17 @@ const PieReport = ({
                   width: "100%",
                 }}
               >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignSelf: "flex-start",
-                    width: "80%",
-                  }}
-                >
-                  <DoughnutChart
-                    ratio={2}
-                    id="salesDistribution"
-                    labels={chartData.labels}
-                    data={numbersToPercentage(chartData.data)}
-                    label={
-                      distributionType === "price_map"
-                        ? translator.getTranslation(lang!, "pieUnitLabel")
-                        : translator.getTranslation(lang!, "pieAverageLabel")
-                    }
-                  />
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignSelf: "center",
-                    alignItems: "start",
-                    width: "20%",
-                  }}
-                >
-                  <List>
-                    {chartData.labels.map((item, index) => (
-                      <ListItem
-                        key={item}
-                        sx={{
-                          padding: "0px",
-                        }}
-                      >
-                        <ListItemText
-                          sx={{
-                            marginTop: "0px",
-                            ".MuiListItemText-secondary": { fontSize: "12px" },
-                          }}
-                          secondary={`${item}: ${chartData.data[index]}`}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                </Box>
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "row-reverse",
-                  alignSelf: "center",
-                  width: "80%",
-                  marginTop: "12px"
-                }}
-              >
-                <Typography variant="body2" sx={{
-                  fontSize: "10px",
-                  fontStyle: "italic",
-                }}>
-                  {translator.getTranslation(lang!, "pieChartExplanation")}
-                </Typography>
+                <DoughnutChart
+                  ratio={2}
+                  id="salesDistribution"
+                  labels={chartData.labels}
+                  data={numbersToPercentage(chartData.data)}
+                  label={
+                    distributionType === "price_map"
+                      ? translator.getTranslation(lang!, "pieUnitLabel")
+                      : translator.getTranslation(lang!, "pieAverageLabel")
+                  }
+                />
               </Box>
             </>
           ) : (

@@ -1,12 +1,26 @@
+import { LangType } from "../types/dashboard.types";
+
 export const rangeOptions = ["3m", "6m", "1y", "3y", "5y", "10y"] as const;
 export type RangeOption = (typeof rangeOptions)[number];
 
-export const getDbDateString = (date: Date): string => {
+export const getDbDateString = (date: Date, format: LangType = 'sr', full: boolean = true): string => {
   if (Object.prototype.toString.call(date) !== "[object Date]") return "";
   const month =
     date.getMonth() < 9 ? `0${date.getMonth() + 1}` : `${date.getMonth() + 1}`;
-  return `${date.getFullYear()}-${month}-${date.getDate()}`;
+  
+    if(format === 'en') return full ? `${date.getFullYear()}-${month}-${date.getDate()}` : `${date.getFullYear()}-${month}`;
+
+    return full ? `${date.getDate()}.${month}.${date.getFullYear()}` : `${month}.${date.getFullYear()}`;
+  
 };
+
+export const formatDate = (date: Date | string, format: LangType, isFull: boolean = true): string => {
+  if (date instanceof Date) return getDbDateString(date, format, isFull);
+  const newDate = new Date(date);
+
+  return getDbDateString(newDate, format, isFull)
+}
+
 export const rangeMap: Record<RangeOption, number> = {
   "3m": 4,
   "6m": 7,

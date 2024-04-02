@@ -22,7 +22,7 @@ function Navigation() {
         <ul className={styles.navigationList}>
           <li className={styles.navigationItem}>
             <NavLink
-              to={`/?lang=${lang}`}
+              to={`/?lang=${lang}&time_range=3m&property_type=residential&municipality=1&distribution_type=price_map`}
               className={
                 pathname === "/"
                   ? `${styles.link} ${styles.active}`
@@ -68,7 +68,7 @@ function Navigation() {
           ]}
           onChange={(value) => {
             setSearchParams((prev) => {
-              prev.set("lang", value as string);
+              prev.set("lang", value);
               return prev;
             });
           }}
