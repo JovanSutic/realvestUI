@@ -46,8 +46,8 @@ const DoughnutChart = ({
           padding: {
             top: 1,
             bottom: 0,
-            left: 1,
-            right: 12,
+            left: 0,
+            right: 0,
           },
         },
         elements: {

@@ -4,7 +4,7 @@ import { CardsReport, LangType } from "../types/dashboard.types";
 import { Translator } from "../data/language/translator";
 import { useSearchParams } from "@remix-run/react";
 
-const DashboardCards = ({ cards }: { cards: CardsReport }) => {
+const DashboardCards = ({ cards, mobile }: { cards: CardsReport; mobile: boolean; }) => {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang") as LangType;
   const translator = new Translator("dashboard");
@@ -12,10 +12,11 @@ const DashboardCards = ({ cards }: { cards: CardsReport }) => {
     <Box
       sx={{
         display: "flex",
-        flexDirection: "row",
+        flexDirection: mobile ? "column" : "row",
         justifyContent: "space-between",
         alignSelf: "center",
         width: "100%",
+        gap: mobile ? "20px" : "0px",
         mb: "20px",
       }}
     >
@@ -26,6 +27,7 @@ const DashboardCards = ({ cards }: { cards: CardsReport }) => {
             label={translator.getTranslation(lang!, cards[item].labelKey)}
             value={cards[item].value}
             changeValue={cards[item].changeValue!}
+            isMobile={mobile}
           />
         )
       )}

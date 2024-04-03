@@ -7,19 +7,20 @@ import { Translator } from "../data/language/translator";
 import ToggleButtons from "../components/toggleButtons";
 import Select from "../components/select";
 
-const DashboardControls = ({ validUntil }: { validUntil: string }) => {
+const DashboardControls = ({ validUntil, mobile }: { validUntil: string, mobile: boolean; }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const lang = searchParams.get("lang") as LangType;
   const timeRange = searchParams.get("time_range") as RangeOption;
   const propertyType = searchParams.get("property_type") as PropertyType;
   const timeRangeOptions = ["3m", "6m", "1y", "3y", "5y", "10y"];
   const translator = new Translator("dashboard");
+  
   return (
     <WidgetWrapper>
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
+          flexDirection: mobile ? "column" : "row",
           width: "100%",
         }}
       >
@@ -27,12 +28,13 @@ const DashboardControls = ({ validUntil }: { validUntil: string }) => {
           sx={{
             justifyContent: "space-between",
             display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
+            flexDirection: mobile ? "column" : "row",
+            alignItems: mobile ? "start" : "center",
             width: "100%",
+            mb: mobile ? "8px" : "0px"
           }}
         >
-          <Typography variant="h5" component="h5">
+          <Typography variant={mobile ? "h6" : "h5"} component="h5">
             {translator.getTranslation(lang!, "widgetTitle")}
           </Typography>
         </Box>
@@ -41,19 +43,19 @@ const DashboardControls = ({ validUntil }: { validUntil: string }) => {
             display: "flex",
             flexDirection: "column",
             width: "100%",
-            alignItems: "flex-end",
+            alignItems: mobile ? "center" : "flex-end",
           }}
         >
           <Box
             sx={{
               display: "flex",
-              flexDirection: "row",
-              gap: "16px",
+              flexDirection: mobile ? "column" : "row",
+              gap: mobile ? "8px" : "16px",
             }}
           >
             <Select
               value={propertyType || "residential"}
-              minWidth={160}
+              minWidth={mobile ? 120 : 160}
               setValue={(value) => {
                 setSearchParams(
                   (prev) => {

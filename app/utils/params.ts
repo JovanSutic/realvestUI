@@ -23,3 +23,16 @@ export const isDashboardParamsValid = (params: DashboardParams): boolean => {
     return true;
   return false;
 };
+
+
+export const isMobile = (userAgent: string) => {
+  if (
+   userAgent.match(/Mobi/i) ||
+    userAgent.match(/Android/i) ||
+    userAgent.match(/iPhone/i)
+  ) {
+    return true;
+  }
+
+  return false;
+}

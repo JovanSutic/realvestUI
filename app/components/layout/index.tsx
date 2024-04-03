@@ -3,9 +3,11 @@ import { ColumnSizeType } from "../../types/component.types";
 
 export const Page = ({
   children,
+  mobile,
   style = {},
 }: {
   children: JSX.Element | JSX.Element[];
+  mobile: boolean;
   style?: SxProps;
 }) => {
   return (
@@ -14,12 +16,13 @@ export const Page = ({
         backgroundColor: "#EAECEF",
         paddingTop: "20px",
         paddingBottom: "28px",
+        boxSizing: "border-box",
         width: "100%",
       }}
     >
       <Box
         sx={{
-          width: "1366px",
+          width: mobile ? "100%" : "1366px",
           margin: "auto",
           display: "block",
           position: "relative",
@@ -34,9 +37,11 @@ export const Page = ({
 
 export const Line = ({
   children,
+  mobile,
   style = {},
 }: {
   children: JSX.Element | JSX.Element[];
+  mobile: boolean,
   style?: SxProps;
 }) => {
   return (
@@ -44,8 +49,8 @@ export const Line = ({
       sx={{
         width: "100%",
         display: "flex",
-        flexDirection: "row",
-        marginBottom: "20px",
+        flexDirection: mobile ? "column" : "row",
+        boxSizing: "border-box",
         ...style,
       }}
     >
@@ -90,6 +95,9 @@ export const WidgetWrapper = ({
         backgroundColor: "#fff",
         padding: "20px",
         borderRadius: "8px",
+        boxSizing: "border-box",
+        boxShadow: "0px 6px 10px -8px rgba(48,48,48,0.85)",
+        marginBottom: "20px",
         ...style,
       }}
     >
