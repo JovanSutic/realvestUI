@@ -4,10 +4,12 @@ const Card = ({
   label,
   value,
   changeValue,
+  isMobile,
 }: {
   label: string;
   value: string;
   changeValue: number;
+  isMobile: boolean;
 }) => {
   const getColor = () => {
     if (changeValue > 0) return "#b1ffd0";
@@ -27,7 +29,7 @@ const Card = ({
       sx={{
         display: "flex",
         flexDirection: "column",
-        width: "30%",
+        width: isMobile ? "100%" : "30%",
         height: "90px",
         borderRadius: "8px",
         background: "#fff",

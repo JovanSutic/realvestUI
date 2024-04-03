@@ -55,6 +55,12 @@
 .link:hover {
   color: #fcd535;
 }
+.linkMobile {
+  font-weight: 500;
+  color: #0b0e11;
+  text-decoration: none;
+  font-size: 18px;
+}
 
 .avatarRoot {
   display: inline-flex;

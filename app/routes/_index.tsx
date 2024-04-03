@@ -15,7 +15,7 @@ import {
   getOptions,
 } from "../utils/reports";
 import PieReport from "../widgets/PieReport";
-import { isDashboardParamsValid } from "../utils/params";
+import { isDashboardParamsValid, isMobile } from "../utils/params";
 import {
   CardsReport,
   MainReportTableData,
@@ -41,6 +41,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const userAgent = request.headers.get('user-agent');
   const searchType = new URL(request.url).searchParams.get("property_type");
   const searchRange = new URL(request.url).searchParams.get("time_range");
   const searchMunicipality = new URL(request.url).searchParams.get(
@@ -98,6 +99,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   if (mainReports?.length) {
     return json({
+      mobile: isMobile(userAgent!),
       mainReportData: getDataForMainReport(mainReports),
       mainCardsData: getDataForMainCards(mainReports),
       pieReportData: pieReports || [],
@@ -109,7 +111,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
   }
 
-  return json({ ok: true });
+  return json({ ok: true, mobile: isMobile(userAgent!) });
 };
 
 export default function Index() {
@@ -123,6 +125,7 @@ export default function Index() {
   const {
     mainReportData,
     lastDate,
+    mobile,
     municipalities,
     pieReportData,
     lineReportData,
@@ -130,6 +133,7 @@ export default function Index() {
   }: {
     mainReportData: Record<string, MainReportTableData>;
     lastDate: string;
+    mobile: boolean;
     municipalities: { id: number; name: string }[];
     pieReportData: PieReportType[];
     lineReportData: MainReportType[];
@@ -155,22 +159,23 @@ export default function Index() {
   }
 
   return (
-    <Page>
-      <Line>
+    <Page mobile={mobile}>
+      <Line mobile={mobile}>
         <Column size={5}>
-          <DashboardControls validUntil={lastDate} />
+          <DashboardControls validUntil={lastDate} mobile={mobile} />
         </Column>
       </Line>
-      <Line>
-        <Column size={3}>
-          <DashboardCards cards={mainCardsData} />
-          <MainReport data={mainReportData} />
+      <Line mobile={mobile}>
+        <Column size={mobile ? 5 : 3}>
+          <DashboardCards cards={mainCardsData} mobile={mobile} />
+          <MainReport data={mainReportData} mobile={mobile} />
         </Column>
-        <Column size={2}>
+        <Column size={mobile ? 5 : 2}>
           <PieReport
             municipalityList={getOptions(municipalities)}
             lineData={lineReportData}
             data={pieReportData}
+            mobile={mobile} 
           />
         </Column>
       </Line>

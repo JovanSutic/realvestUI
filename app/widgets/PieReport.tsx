@@ -27,10 +27,12 @@ const PieReport = ({
   municipalityList,
   lineData,
   data,
+  mobile,
 }: {
   municipalityList: DropdownOptions[];
   lineData: MainReportType[];
   data: PieReportType[];
+  mobile: boolean;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const lang = searchParams.get("lang") as LangType;
@@ -55,6 +57,7 @@ const PieReport = ({
           flexDirection: "column",
           alignItems: "center",
           boxSizing: "border-box",
+          width: "100%"
         }}
       >
         <Box
@@ -74,7 +77,7 @@ const PieReport = ({
               marginBottom: "16px",
             }}
           >
-            <Typography component="h6" variant="h6" sx={{ fontWeight: "400" }}>
+            <Typography component="h6" variant={mobile ? "subtitle1" : "h6"} sx={{ fontWeight: "400" }}>
               {translator.getTranslation(lang!, "pieTitle")}
             </Typography>
             <Select
@@ -105,7 +108,7 @@ const PieReport = ({
           <Line
             data={getSingleLineDataset(
               lineData,
-              translator.getTranslation(lang!, `priceAverage${timeRange}`),
+              translator.getTranslation(lang!, `priceAverage3m`),
               timeRange!,
               lang!
             )}
@@ -185,7 +188,7 @@ const PieReport = ({
                 }}
               >
                 <DoughnutChart
-                  ratio={2}
+                  ratio={ mobile ? 1.5 : 2}
                   id="salesDistribution"
                   labels={chartData.labels}
                   data={numbersToPercentage(chartData.data)}

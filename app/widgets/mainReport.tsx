@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useSearchParams } from "@remix-run/react";
 import { WidgetWrapper } from "../components/layout";
 import Table from "../components/table";
@@ -7,8 +7,10 @@ import { Translator } from "../data/language/translator";
 import { LangType, MainReportTableData } from "../types/dashboard.types";
 const MainReport = ({
   data,
+  mobile,
 }: {
   data: Record<string, MainReportTableData>;
+  mobile: boolean;
 }) => {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang") as LangType;
@@ -56,16 +58,33 @@ const MainReport = ({
         <Box
           sx={{
             display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+            marginBottom: "16px",
+          }}
+        >
+          <Typography
+            component="h6"
+            variant={mobile ? "subtitle1" : "h6"}
+            sx={{ fontWeight: "400" }}
+          >
+            {translator.getTranslation(lang!, "mainTableTitle")}
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
             flexDirection: "column",
             alignSelf: "flex-start",
             width: "100%",
-            mb: "20px",
           }}
         >
           <Table
             headers={tableHeaders}
             data={listMainReportData(data)}
-            height={500}
+            height={mobile ? 386 : 500}
           />
         </Box>
       </Box>
