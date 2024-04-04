@@ -91,3 +91,28 @@ export type CardsReport = {
   averagePrice: CardReportItem;
   averageSize: CardReportItem;
 };
+
+export type CardsDataCalculation = {
+  count: number;
+  sum_price: number;
+  average_meter_price: number[];
+  sum_size: number;
+};
+
+export type CardsDataInfo = {
+  count: number;
+  sum_price: number;
+  average_meter_price: number;
+  sum_size: number;
+};
+
+type CardsDataItem = {
+  value: number;
+  difference: number;
+};
+
+export type CardsData = {
+  sum_price: CardsDataItem;
+  average_meter_price: CardsDataItem;
+  sum_size: CardsDataItem;
+};

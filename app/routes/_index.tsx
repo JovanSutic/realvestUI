@@ -3,27 +3,20 @@ import { Column, Line, Page } from "../components/layout";
 import MainReport from "../widgets/MainReport";
 import { json } from "@remix-run/node";
 import { createClient } from "@supabase/supabase-js";
-import { NavLink, useLoaderData, useSearchParams } from "@remix-run/react";
+import {useLoaderData, useSearchParams } from "@remix-run/react";
 import {
   RangeOption,
   getDateForReport,
   getDbDateString,
 } from "../utils/dateTime";
-import {
-  getDataForMainCards,
-  getDataForMainReport,
-  getOptions,
-} from "../utils/reports";
+import { getDataForMainReport, getOptions } from "../utils/reports";
 import PieReport from "../widgets/PieReport";
 import { isDashboardParamsValid, isMobile } from "../utils/params";
-import {
-  CardsReport,
-  MainReportTableData,
-  MainReportType,
-  PieReportType,
-} from "../types/dashboard.types";
+import { MainReportType, PieReportType } from "../types/dashboard.types";
 import DashboardControls from "../widgets/DashboardControls";
 import DashboardCards from "../widgets/DashboardCards";
+import { default as ErrorPage } from "../components/error";
+import { Translator } from "../data/language/translator";
 
 const mandatorySearchParams: Record<string, string> = {
   lang: "sr",
@@ -41,7 +34,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const userAgent = request.headers.get('user-agent');
+  const userAgent = request.headers.get("user-agent");
   const searchType = new URL(request.url).searchParams.get("property_type");
   const searchRange = new URL(request.url).searchParams.get("time_range");
   const searchMunicipality = new URL(request.url).searchParams.get(
@@ -100,14 +93,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (mainReports?.length) {
     return json({
       mobile: isMobile(userAgent!),
-      mainReportData: getDataForMainReport(mainReports),
-      mainCardsData: getDataForMainCards(mainReports),
+      reports: mainReports,
       pieReportData: pieReports || [],
-      lastDate: mainReports[mainReports.length - 1].date_to,
       municipalities: municipalities || [],
-      lineReportData: mainReports.filter(
-        (item) => item.municipality.id === Number(searchMunicipality)
-      ),
     });
   }
 
@@ -121,23 +109,18 @@ export default function Index() {
   const propertyType = searchParams.get("property_type");
   const municipality = searchParams.get("municipality");
   const distributionType = searchParams.get("distribution_type");
+  const translator = new Translator("dashboard");
 
   const {
-    mainReportData,
-    lastDate,
+    reports,
     mobile,
     municipalities,
     pieReportData,
-    lineReportData,
-    mainCardsData,
   }: {
-    mainReportData: Record<string, MainReportTableData>;
-    lastDate: string;
+    reports: MainReportType[];
     mobile: boolean;
     municipalities: { id: number; name: string }[];
     pieReportData: PieReportType[];
-    lineReportData: MainReportType[];
-    mainCardsData: CardsReport;
   } = useLoaderData();
 
   if (
@@ -150,11 +133,12 @@ export default function Index() {
     })
   ) {
     return (
-      <NavLink
-        to={`/?lang=${mandatorySearchParams.lang}&time_range=${mandatorySearchParams.time_range}&property_type=${mandatorySearchParams.property_type}&municipality=${mandatorySearchParams.municipality}&distribution_type=${mandatorySearchParams.distribution_type}`}
-      >
-        Sad ovde
-      </NavLink>
+      <ErrorPage
+        title={translator.getTranslation(lang!, "dashboardErrorTitle")}
+        subtitle={translator.getTranslation(lang!, "dashboardErrorSubtitle")}
+        buttonText={translator.getTranslation(lang!, "dashboardErrorButton")}
+        link={`/?lang=${mandatorySearchParams.lang}&time_range=${mandatorySearchParams.time_range}&property_type=${mandatorySearchParams.property_type}&municipality=${mandatorySearchParams.municipality}&distribution_type=${mandatorySearchParams.distribution_type}`}
+      />
     );
   }
 
@@ -162,23 +146,33 @@ export default function Index() {
     <Page mobile={mobile}>
       <Line mobile={mobile}>
         <Column size={5}>
-          <DashboardControls validUntil={lastDate} mobile={mobile} />
+          <DashboardControls
+            validUntil={reports[reports.length - 1].date_to}
+            mobile={mobile}
+          />
         </Column>
       </Line>
       <Line mobile={mobile}>
         <Column size={mobile ? 5 : 3}>
-          <DashboardCards cards={mainCardsData} mobile={mobile} />
-          <MainReport data={mainReportData} mobile={mobile} />
+          <DashboardCards mobile={mobile} data={reports} />
+          <MainReport data={getDataForMainReport(reports)} mobile={mobile} />
         </Column>
         <Column size={mobile ? 5 : 2}>
           <PieReport
             municipalityList={getOptions(municipalities)}
-            lineData={lineReportData}
+            lineData={reports.filter(
+              (item) => item.municipality.id === Number(municipality)
+            )}
             data={pieReportData}
-            mobile={mobile} 
+            mobile={mobile}
           />
         </Column>
       </Line>
     </Page>
   );
+}
+
+export function ErrorBoundary() {
+
+  return <ErrorPage link={"/"} />;
 }

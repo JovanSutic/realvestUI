@@ -35,6 +35,9 @@ export const dashboardMap: Record<string, Record<string, string>> = {
     cardAverageM2: "Average m2 price",
     cardAveragePrice: "Average unit price",
     cardAverageSize: "Average unit size",
+    dashboardErrorTitle: "Error",
+    dashboardErrorSubtitle: "Error",
+    dashboardErrorButton: "Error",    
   },
   sr: {
     "3m": "3m",
@@ -72,5 +75,8 @@ export const dashboardMap: Record<string, Record<string, string>> = {
     cardAverageM2: "Prosečna cena m2",
     cardAveragePrice: "Prosečna cena jedinice",
     cardAverageSize: "Prosečna veličina jedinice",
+    dashboardErrorTitle: "Error",
+    dashboardErrorSubtitle: "Error",
+    dashboardErrorButton: "Error",  
   },
 };

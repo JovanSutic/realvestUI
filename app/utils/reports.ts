@@ -1,7 +1,9 @@
 import { DropdownOptions } from "../types/component.types";
 import {
+  CardsData,
+  CardsDataCalculation,
+  CardsDataInfo,
   CardsReport,
-  CardsReportCalculation,
   DistributionTypeKey,
   GeneralObject,
   LangType,
@@ -103,61 +105,6 @@ export const getDataForMainReport = (
   return packageTheReport(result);
 };
 
-export const getDataForMainCards = (reports: MainReportType[]): CardsReport => {
-  const result: Record<string, MainReportTableCalculation> =
-    processDataForTable(reports);
-  const test: CardsReportCalculation = {
-    averageM2: [],
-    averagePrice: [],
-    averageSize: [],
-    count: [],
-  };
-
-  Object.keys(result).forEach((key) => {
-    test.averageM2.push(...result[key].averageM2.filter((item) => item > 0));
-    test.averagePrice.push(
-      ...result[key].averagePrice.filter((item) => item > 0)
-    );
-    test.averageSize.push(
-      ...result[key].averageSize.filter((item) => item > 0)
-    );
-    test.count.push(result[key].count);
-  });
-
-  const count = (test.count || []).reduce((a: number, b: number) => a + b, 0);
-
-  return {
-    averageM2: {
-      labelKey: "cardAverageM2",
-      changeValue: -13,
-      value: makeNumberCurrency(
-        roundNumberToDecimal(
-          getListAverage(test.averageM2, test.averageM2.length),
-          0
-        )
-      ),
-    },
-    averagePrice: {
-      labelKey: "cardAveragePrice",
-      changeValue: 0,
-      value: makeNumberCurrency(
-        roundNumberToDecimal(getListAverage(test.averagePrice, count), 0)
-      ),
-    },
-    averageSize: {
-      labelKey: "cardAverageSize",
-      changeValue: 5,
-      value: makeNumberCurrency(
-        roundNumberToDecimal(
-          getListAverage(test.averageSize, count),
-          0
-        ),
-        " m2"
-      ),
-    },
-  };
-};
-
 export const listMainReportData = (
   data: Record<string, MainReportTableData>
 ): MainReportTableData[] => {
@@ -244,16 +191,20 @@ const getAverage = (list: MainReportType[]): number => {
   return sum / (list.length - empty) || 0;
 };
 
+const dividerMap: Record<string, number> = {
+  "3m": 1,
+  "6m": 1,
+  "1y": 1,
+  "3y": 3,
+  "5y": 6,
+  "10y": 12,
+};
+
 const calculateLineData = (
   data: MainReportType[],
   timeRange: RangeOption,
   lang: LangType
 ): LineChartPreparedData => {
-  const dividerMap = {
-    "3y": 4,
-    "5y": 6,
-    "10y": 12,
-  };
   if (timeRange === "3y" || timeRange === "5y" || timeRange === "10y") {
     const result: Record<string, number> = {};
     let divider = 0;
@@ -300,3 +251,161 @@ export const getSingleLineDataset = (
 
   return dataSet;
 };
+
+const prepareCardReportData = (data: MainReportType[]) => {
+  const result: Record<string, MainReportType[]> = {};
+  const final: CardsDataInfo[] = [];
+
+  for (let index = 0; index < data.length; index++) {
+    if (result[data[index].date_to]) {
+      result[data[index].date_to].push(data[index]);
+    } else {
+      result[data[index].date_to] = [data[index]];
+    }
+  }
+
+  Object.keys(result).map((key: keyof typeof result) => {
+    const range: CardsDataCalculation = {
+      count: 0,
+      sum_price: 0,
+      average_meter_price: [],
+      sum_size: 0,
+    };
+    result[key].forEach((item) => {
+      range.count = range.count + item.count;
+      if (item.sum_price > 0) {
+        range.sum_price = range.sum_price + item.sum_price;
+      }
+
+      if (item.sum_size > 0) {
+        range.sum_size = range.sum_size + item.sum_size;
+      }
+
+      if (item.average_meter_price > 0) {
+        range.average_meter_price.push(item.average_meter_price);
+      }
+    });
+
+    final.push({
+      count: range.count,
+      sum_price: range.sum_price / range.count,
+      sum_size: range.sum_size / range.count,
+      average_meter_price:
+        range.average_meter_price.reduce((a: number, b: number) => a + b, 0) /
+        range.average_meter_price.length,
+    });
+  });
+
+  return final;
+}
+
+export const getCardEffects = (
+  data: MainReportType[],
+  timeRange: RangeOption
+): CardsData => {
+  const result: CardsDataInfo[] = prepareCardReportData(data);
+
+  const rangeData: CardsDataInfo[] = [];
+  const completeData: CardsDataInfo[] = [];
+
+  result.forEach((item, index) => {
+    if (dividerMap[timeRange] > 1) {
+      if ((index + 1) % dividerMap[timeRange] === 0) {
+        const count = rangeData.reduce((a: number, b: CardsDataInfo) => a + b.count, 0);
+        completeData.push({
+          count,
+          sum_price:
+          rangeData.reduce((a: number, b: CardsDataInfo) => a + b.sum_price, 0) /
+          rangeData.length,
+          average_meter_price:
+          rangeData.reduce(
+              (a: number, b: CardsDataInfo) => a + b.average_meter_price,
+              0
+            ) / rangeData.length,
+          sum_size:
+          rangeData.reduce((a: number, b: CardsDataInfo) => a + b.sum_size, 0) /
+          rangeData.length,
+        });
+      } else {
+        rangeData.push(item);
+      }
+    } else {
+      completeData.push(item);
+    }
+  });
+
+  if (completeData.length) {
+    return {
+      sum_price: {
+        value:
+        completeData.reduce((a: number, b: CardsDataInfo) => a + b.sum_price, 0) /
+        completeData.length,
+        difference:
+          ((completeData[completeData.length - 1].sum_price - completeData[0].sum_price) / completeData[0].sum_price) * 100,
+      },
+      average_meter_price: {
+        value:
+        completeData.reduce(
+            (a: number, b: CardsDataInfo) => a + b.average_meter_price,
+            0
+          ) / completeData.length,
+        difference:
+          ((completeData[completeData.length - 1].average_meter_price - completeData[0].average_meter_price) /
+          completeData[0].average_meter_price) *
+          100,
+      },
+      sum_size: {
+        value:
+        completeData.reduce((a: number, b: CardsDataInfo) => a + b.sum_size, 0) /
+        completeData.length,
+        difference:
+          ((completeData[completeData.length - 1].sum_size - completeData[0].sum_size) / completeData[0].sum_size) * 100,
+      },
+    };
+  }
+
+  return {
+    sum_price: {
+      value: 0,
+      difference: 0,
+    },
+    average_meter_price: {
+      value: 0,
+      difference: 0,
+    },
+    sum_size: {
+      value: 0,
+      difference: 0,
+    },
+  };
+};
+
+export const prepareCardDataForDisplay = (data: CardsData): CardsReport => {
+  return {
+    averageM2: {
+      labelKey: "cardAverageM2",
+      changeValue: roundNumberToDecimal(data.average_meter_price.difference, 0),
+      value: makeNumberCurrency(
+        roundNumberToDecimal(
+          data.average_meter_price.value,
+          0
+        )
+      ),
+    },
+    averagePrice: {
+      labelKey: "cardAveragePrice",
+      changeValue: roundNumberToDecimal(data.sum_price.difference, 0),
+      value: makeNumberCurrency(
+        roundNumberToDecimal(data.sum_price.value, 0)
+      ),
+    },
+    averageSize: {
+      labelKey: "cardAverageSize",
+      changeValue: roundNumberToDecimal(data.sum_size.difference, 0),
+      value: makeNumberCurrency(
+        roundNumberToDecimal(data.sum_size.value, 0),
+        " m2"
+      ),
+    },
+  };
+}
