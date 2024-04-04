@@ -1,13 +1,7 @@
 .root {
   display: flex;
   justify-content: space-between;
-  background: rgb(33, 40, 49);
-  background: linear-gradient(
-    90deg,
-    rgba(33, 40, 49, 1) 0%,
-    rgba(26, 34, 49, 1) 35%,
-    rgba(16, 19, 43, 1) 100%
-  );
+  background: #06173d;
   font-family: "Roboto", sans-serif;
 }
 

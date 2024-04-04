@@ -4,13 +4,16 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  isRouteErrorResponse,
   useLoaderData,
+  useRouteError,
 } from "@remix-run/react";
 import { LinksFunction, LoaderFunctionArgs, json } from "@remix-run/node";
 import { getMuiLinks } from "./mui/getMuiLinks";
 import { MuiMeta } from "./mui/MuiMeta";
 import { MuiDocument } from "./mui/MuiDocument";
 import appStyles from "./app.css?url";
+import { default as ErrorPage } from "./components/error";
 import Navigation from "./components/navigation";
 import { isMobile } from "./utils/params";
 
@@ -20,13 +23,30 @@ export const links: LinksFunction = () => [
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const userAgent = request.headers.get('user-agent');
-  return json({ ok: true, mobile: isMobile(userAgent!), });
+  const userAgent = request.headers.get("user-agent");
+  return json({ ok: true, mobile: isMobile(userAgent!) });
 };
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function ErrorBoundary() {
+  const error = useRouteError();
 
-  const {mobile}: {mobile: boolean} = useLoaderData();
+  if (error instanceof Error) {
+    return <ErrorPage link={"/portfolio/?lang=sr"} />;
+  }
+
+  if (!isRouteErrorResponse(error)) {
+    return <ErrorPage link={"/portfolio/?lang=sr"} />;
+  }
+
+  if (error.status === 404) {
+    return <ErrorPage link={"/portfolio/?lang=sr"} />;
+  }
+
+  return <ErrorPage link={"/portfolio/?lang=sr"} />;
+}
+
+export function Layout({ children }: { children: React.ReactNode }) {
+  const loaderData: { mobile: boolean } | undefined = useLoaderData();
 
   return (
     <html lang="en">
@@ -39,7 +59,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <header>
-          <Navigation mobile={mobile} />
+          <Navigation mobile={loaderData?.mobile || false} />
         </header>
         {children}
         <ScrollRestoration />

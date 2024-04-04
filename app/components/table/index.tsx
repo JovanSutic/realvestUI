@@ -24,7 +24,7 @@ const renderTableValue = (reference: string, value: string | number, headers: Ta
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
-    backgroundColor: "#1e2531",
+    backgroundColor: "#06173d",
     color: theme.palette.secondary.main,
     fontSize: 14,
     fontFamily: "Nunito Sans Variable, sans-serif",
