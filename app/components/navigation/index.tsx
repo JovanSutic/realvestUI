@@ -57,7 +57,7 @@ const MobileMenu = ({
         <ListItem>
           <ListItemButton>
             <NavLink
-              to={`/?lang=${lang}&time_range=3m&property_type=residential&municipality=1&distribution_type=price_map`}
+              to={`/dashboard/?lang=${lang}&time_range=3m&property_type=residential&municipality=1&distribution_type=price_map`}
               className={
                 pathname === "/"
                   ? `${styles.linkMobile} ${styles.active}`
@@ -135,9 +135,9 @@ function Navigation({ mobile }: { mobile: boolean }) {
           <ul className={styles.navigationList}>
             <li className={styles.navigationItem}>
               <NavLink
-                to={`/?lang=${lang}&time_range=3m&property_type=residential&municipality=1&distribution_type=price_map`}
+                to={`/dashboard/?lang=${lang}&time_range=3m&property_type=residential&municipality=1&distribution_type=price_map`}
                 className={
-                  pathname === "/"
+                  pathname === "/dashboard/"
                     ? `${styles.link} ${styles.active}`
                     : `${styles.link}`
                 }

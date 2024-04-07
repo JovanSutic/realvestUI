@@ -5,15 +5,17 @@ export const Page = ({
   children,
   mobile,
   style = {},
+  color = "#EAECEF",
 }: {
   children: JSX.Element | JSX.Element[];
   mobile: boolean;
   style?: SxProps;
+  color?: string;
 }) => {
   return (
     <Box
       sx={{
-        backgroundColor: "#EAECEF",
+        backgroundColor: color,
         paddingTop: "20px",
         paddingBottom: "28px",
         boxSizing: "border-box",
