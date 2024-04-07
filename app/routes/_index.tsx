@@ -1,30 +1,28 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Column, Line, Page } from "../components/layout";
-import MainReport from "../widgets/MainReport";
 import { json } from "@remix-run/node";
-import { createClient } from "@supabase/supabase-js";
-import {useLoaderData, useSearchParams } from "@remix-run/react";
-import {
-  RangeOption,
-  getDateForReport,
-  getDbDateString,
-} from "../utils/dateTime";
-import { getDataForMainReport, getOptions } from "../utils/reports";
-import PieReport from "../widgets/PieReport";
-import { isDashboardParamsValid, isMobile } from "../utils/params";
-import { MainReportType, PieReportType } from "../types/dashboard.types";
-import DashboardControls from "../widgets/DashboardControls";
-import DashboardCards from "../widgets/DashboardCards";
+import { NavLink, useLoaderData, useSearchParams } from "@remix-run/react";
 import { default as ErrorPage } from "../components/error";
-import { Translator } from "../data/language/translator";
-
-const mandatorySearchParams: Record<string, string> = {
-  lang: "sr",
-  time_range: "3m",
-  property_type: "residential",
-  municipality: "1",
-  distribution_type: "price_map",
-};
+import { isMobile } from "../utils/params";
+import {
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  List,
+  ListItem,
+  ListItemIcon,
+  OutlinedInput,
+  Typography,
+} from "@mui/material";
+import {
+  CheckCircleOutline,
+  Insights,
+  Reviews,
+  AspectRatio,
+  Scale,
+} from "@mui/icons-material";
+import { getDayInYear } from "../utils/dateTime";
 
 export const meta: MetaFunction = () => {
   return [
@@ -35,144 +33,396 @@ export const meta: MetaFunction = () => {
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userAgent = request.headers.get("user-agent");
-  const searchType = new URL(request.url).searchParams.get("property_type");
-  const searchRange = new URL(request.url).searchParams.get("time_range");
-  const searchMunicipality = new URL(request.url).searchParams.get(
-    "municipality"
-  );
-
-  const startDate = getDateForReport(
-    (searchRange || mandatorySearchParams.timeRange) as RangeOption
-  );
-
-  const supabase = createClient(
-    process.env.SUPABASE_URL_LOCAL!,
-    process.env.SUPABASE_KEY_LOCAL!
-  );
-
-  const { data: mainReports, error: mainError } = await supabase
-    .from("contract_report")
-    .select(
-      `id, count, sum_price, average_meter_price, min_average, sum_size, max_average, date_to, municipality(
-    id, name
-  )`
-    )
-    .eq("type", `${searchType || mandatorySearchParams.propertyType}`)
-    .gt("date_from", getDbDateString(startDate!, "en"))
-    .returns<MainReportType[]>();
-  if (mainError) {
-    console.log(mainError);
-  }
-
-  const { data: pieReports, error: pieError } = await supabase
-    .from("pie_contract_report")
-    .select(
-      `id, price_map, average_price_map, date_to, municipality(
-    id, name
-  )`
-    )
-    .eq("type", `${searchType || mandatorySearchParams.propertyType}`)
-    .eq(
-      "municipality",
-      `${searchMunicipality || mandatorySearchParams.municipality}`
-    )
-    .gt("date_from", getDbDateString(startDate!, "en"));
-
-  if (pieError) {
-    console.log(pieError);
-  }
-
-  const { data: municipalities, error: municipalitiesError } = await supabase
-    .from("municipalities")
-    .select();
-
-  if (municipalitiesError) {
-    console.log(municipalitiesError);
-  }
-
-  if (mainReports?.length) {
-    return json({
-      mobile: isMobile(userAgent!),
-      reports: mainReports,
-      pieReportData: pieReports || [],
-      municipalities: municipalities || [],
-    });
-  }
-
   return json({ ok: true, mobile: isMobile(userAgent!) });
 };
 
 export default function Index() {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
-  const timeRange = searchParams.get("time_range");
-  const propertyType = searchParams.get("property_type");
-  const municipality = searchParams.get("municipality");
-  const distributionType = searchParams.get("distribution_type");
-  const translator = new Translator("dashboard");
 
   const {
-    reports,
     mobile,
-    municipalities,
-    pieReportData,
   }: {
-    reports: MainReportType[];
     mobile: boolean;
-    municipalities: { id: number; name: string }[];
-    pieReportData: PieReportType[];
   } = useLoaderData();
 
-  if (
-    !isDashboardParamsValid({
-      lang,
-      timeRange,
-      propertyType,
-      municipality,
-      distributionType,
-    })
-  ) {
-    return (
-      <ErrorPage
-        title={translator.getTranslation(lang!, "dashboardErrorTitle")}
-        subtitle={translator.getTranslation(lang!, "dashboardErrorSubtitle")}
-        buttonText={translator.getTranslation(lang!, "dashboardErrorButton")}
-        link={`/?lang=${mandatorySearchParams.lang}&time_range=${mandatorySearchParams.time_range}&property_type=${mandatorySearchParams.property_type}&municipality=${mandatorySearchParams.municipality}&distribution_type=${mandatorySearchParams.distribution_type}`}
-      />
-    );
-  }
-
   return (
-    <Page mobile={mobile}>
-      <Line mobile={mobile}>
-        <Column size={5}>
-          <DashboardControls
-            validUntil={reports[reports.length - 1].date_to}
-            mobile={mobile}
-          />
-        </Column>
-      </Line>
-      <Line mobile={mobile}>
-        <Column size={mobile ? 5 : 3}>
-          <DashboardCards mobile={mobile} data={reports} />
-          <MainReport data={getDataForMainReport(reports)} mobile={mobile} />
-        </Column>
-        <Column size={mobile ? 5 : 2}>
-          <PieReport
-            municipalityList={getOptions(municipalities)}
-            lineData={reports.filter(
-              (item) => item.municipality.id === Number(municipality)
-            )}
-            data={pieReportData}
-            mobile={mobile}
-          />
-        </Column>
-      </Line>
-    </Page>
+    <>
+      <Page mobile={mobile}>
+        <Line mobile={mobile}>
+          <Column size={5}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                width: "760px",
+                alignSelf: "center",
+                alignItems: "center",
+                paddingTop: "12px",
+                paddingBottom: "36px",
+                textAlign: "center",
+              }}
+            >
+              <Typography
+                variant="h2"
+                sx={{
+                  fontSize: "40px",
+                  fontWeight: "500",
+                  color: "#06173d",
+                  marginBottom: "12px",
+                }}
+              >
+                Platforma za ljude koji ulažu u nekretnine
+              </Typography>
+              {/* <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "300",
+                lineHeight: "24px",
+                color: "#06173d",
+              }}
+            >
+              Donosite kupovne odluke sa više samopouzdanja i podržite svoje
+              investicione izbore čvrstim podacima.
+            </Typography> */}
+              <Button
+                variant="contained"
+                sx={{
+                  background: "#f0b90b",
+                  color: "#06173d",
+                  width: "400px",
+                  marginTop: "28px",
+                  "& a": {
+                    color: "#14182d",
+                    fontStyle: "none",
+                    textDecoration: "none",
+                  },
+                  "&:hover": {
+                    background: "#fcd535",
+                  },
+                }}
+              >
+                <NavLink
+                  to={`dashboard/?lang=sr&time_range=3m&property_type=residential&municipality=1&distribution_type=price_map`}
+                >
+                  Pogledaj podatke za Beograd
+                </NavLink>
+              </Button>
+            </Box>
+
+            <Divider />
+          </Column>
+        </Line>
+        <Line mobile={mobile}>
+          <Column size={5}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                marginTop: "40px",
+                marginBottom: "20px",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "360px",
+                  padding: "20px",
+                  background: "#06173d",
+                  borderRadius: "8px",
+                  height: "fit-content",
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  sx={{
+                    color: "#fff",
+                    textAlign: "center",
+                  }}
+                >
+                  Rani pristup
+                </Typography>
+                <List>
+                  <ListItem>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#fff",
+                        fontWeight: 300,
+                        lineHeight: "22px",
+                        textAlign: "justify",
+                      }}
+                    >
+                      Pristup beta verziji aplikacije, pre javnog lansiranja
+                      proizvoda.
+                    </Typography>
+                  </ListItem>
+                  <ListItem>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#fff",
+                        fontWeight: 500,
+                        lineHeight: "22px",
+                        textAlign: "justify",
+                      }}
+                    >
+                      Sniženu cenu godišnjeg pristupa aplikaciji. Popust od 50%.
+                    </Typography>
+                  </ListItem>
+                  <ListItem>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#fff",
+                        fontWeight: 300,
+                        lineHeight: "22px",
+                        textAlign: "justify",
+                      }}
+                    >
+                      Mogućnost uticaja na funckionalnosti koje će biti dostupne
+                      u aplikaciji.
+                    </Typography>
+                  </ListItem>
+                  <ListItem>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "#fff",
+                        fontWeight: 300,
+                        lineHeight: "22px",
+                        textAlign: "justify",
+                      }}
+                    >
+                      Prvi uvid u nova tržišta, nove funckionalnosti i nove
+                      investicione prilike.
+                    </Typography>
+                  </ListItem>
+                </List>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontSize: "12px",
+                    fontWeight: "300",
+                    marginTop: "8px",
+                    color: "#fff",
+                  }}
+                >
+                  {`Dostupno još samo ${200 - getDayInYear()} mesta.`}
+                </Typography>
+                <FormControl
+                  sx={{
+                    m: 1,
+                    width: "320px",
+                    margin: "0px",
+                    marginTop: "4px",
+                    marginBottom: "16px",
+                  }}
+                  variant="outlined"
+                >
+                  <OutlinedInput
+                    id="outlined-adornment-weight"
+                    aria-describedby="outlined-weight-helper-text"
+                    placeholder="Email"
+                    label="Vaš email"
+                    inputProps={{
+                      "aria-label": "Email",
+                    }}
+                    sx={{
+                      background: "#fff",
+                      "& input": {
+                        padding: "12px 14px",
+                      },
+                    }}
+                  />
+                </FormControl>
+                <Button
+                  variant="contained"
+                  sx={{
+                    background: "#f0b90b",
+                    color: "#06173d",
+                    "&:hover": {
+                      background: "#fcd535",
+                    },
+                  }}
+                >
+                  Želim rani pristup
+                </Button>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: "0px 40px",
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      color: "#06173d",
+                      textAlign: "center",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    Šta mogu da očekujem od platforme?
+                  </Typography>
+                  <List>
+                    <ListItem>
+                      <ListItemIcon>
+                        <AspectRatio
+                          sx={{
+                            color: "#06173d",
+                            fontSize: "32px",
+                          }}
+                        />
+                      </ListItemIcon>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          lineHeight: "22px",
+                          textAlign: "justify",
+                        }}
+                      >
+                        <b>Uvid u uspešnost ličnog portfolija nekretnina. </b>
+                        Možete videti koliko se tačno povećala realna vrednost
+                        nekretnina u vašem vlasništvu, odnosno da li je
+                        investicija uspešna ili ne.
+                      </Typography>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemIcon>
+                        <Scale
+                          sx={{
+                            color: "#06173d",
+                            fontSize: "32px",
+                          }}
+                        />
+                      </ListItemIcon>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          lineHeight: "22px",
+                          textAlign: "justify",
+                        }}
+                      >
+                        <b>Podatke o prihodnim mogućnostima nekretnina. </b>
+                        Saznajte koliko možete zaraditi kratkoročnim ili
+                        dugoročnim izdavanjem i da li je to za vas isplativo.
+                      </Typography>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemIcon>
+                        <Reviews
+                          sx={{
+                            color: "#06173d",
+                            fontSize: "32px",
+                          }}
+                        />
+                      </ListItemIcon>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          lineHeight: "22px",
+                          textAlign: "justify",
+                        }}
+                      >
+                        <b>Sugestije za nove investicione šanse.</b> Ukazaćemo
+                        vam na ponude koje imaju dobar investicioni potencijal,
+                        ali imaćete mogućnost da i sami pronađete dobre prilike
+                        za investiranje.
+                      </Typography>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemIcon>
+                        <Insights
+                          sx={{
+                            color: "#06173d",
+                            fontSize: "32px",
+                          }}
+                        />
+                      </ListItemIcon>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          lineHeight: "22px",
+                          textAlign: "justify",
+                        }}
+                      >
+                        <b>Prikaz tržišnih trendova.</b> Ilustrovaćemo makro
+                        trendove za celo tržište kao i mikro trendove vezane za
+                        određene male delove tržišta.
+                      </Typography>
+                    </ListItem>
+                    <ListItem>
+                      <ListItemIcon>
+                        <CheckCircleOutline
+                          sx={{
+                            color: "#06173d",
+                            fontSize: "32px",
+                          }}
+                        />
+                      </ListItemIcon>
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          lineHeight: "22px",
+                          textAlign: "justify",
+                        }}
+                      >
+                        <b>Više samopuzdanja.</b> Čvrsti podaci mogu vam pomoći
+                        da budete sigurniji u svoje odluke i budete aktivniji i
+                        uspešniji na tržištu.
+                      </Typography>
+                    </ListItem>
+                  </List>
+                </Box>
+              </Box>
+            </Box>
+          </Column>
+        </Line>
+      </Page>
+      <Page mobile={mobile} color="#06173d">
+        <Line mobile={mobile}>
+          <Column size={5}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                width: "800px",
+                alignSelf: "center",
+                alignItems: "center",
+                paddingTop: "30px",
+                paddingBottom: "30px",
+                textAlign: "center",
+              }}
+            >
+              <Typography
+                variant="h2"
+                sx={{
+                  fontSize: "24px",
+                  fontWeight: "300",
+                  color: "#fff",
+                  marginBottom: "12px",
+                }}
+              >
+                Ukoliko aktivno investirate u nekretnine ili to čine vaši
+                klijenti. Iskoristite ovu priliku i zatražite rani pristup.
+              </Typography>
+            </Box>
+          </Column>
+        </Line>
+      </Page>
+    </>
   );
 }
 
 export function ErrorBoundary() {
-
   return <ErrorPage link={"/"} />;
 }
