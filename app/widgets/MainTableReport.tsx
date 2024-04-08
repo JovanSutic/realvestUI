@@ -5,7 +5,7 @@ import Table from "../components/table";
 import { listMainReportData } from "../utils/reports";
 import { Translator } from "../data/language/translator";
 import { LangType, MainReportTableData } from "../types/dashboard.types";
-const MainReport = ({
+const MainTableReport = ({
   data,
   mobile,
 }: {
@@ -92,4 +92,4 @@ const MainReport = ({
   );
 };
 
-export default MainReport;
+export default MainTableReport;

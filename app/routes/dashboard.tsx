@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Column, Line, Page } from "../components/layout";
-import MainReport from "../widgets/MainReport.tsx";
+import MainTableReport from "../widgets/MainTableReport";
 import { json } from "@remix-run/node";
 import { createClient } from "@supabase/supabase-js";
 import {useLoaderData, useSearchParams } from "@remix-run/react";
@@ -155,7 +155,7 @@ export default function Index() {
       <Line mobile={mobile}>
         <Column size={mobile ? 5 : 3}>
           <DashboardCards mobile={mobile} data={reports} />
-          <MainReport data={getDataForMainReport(reports)} mobile={mobile} />
+          <MainTableReport data={getDataForMainReport(reports)} mobile={mobile} />
         </Column>
         <Column size={mobile ? 5 : 2}>
           <PieReport
