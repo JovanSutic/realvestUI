@@ -39,6 +39,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Index() {
   const [searchParams] = useSearchParams();
   const lang = searchParams.get("lang");
+  console.log(lang);
 
   const {
     mobile,
