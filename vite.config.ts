@@ -7,7 +7,10 @@ import {resolve} from 'node:path'
 installGlobals();
 
 export default defineConfig({
-  plugins: [remix(), tsconfigPaths()],
+  base: "/realvestUI/",
+  plugins: [remix({
+    basename: "/realvestUI/"
+  }), tsconfigPaths()],
   resolve: {
     alias: [{ find: "@", replacement: resolve(__dirname, "./app") }]
   }
