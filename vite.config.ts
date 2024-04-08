@@ -9,6 +9,6 @@ installGlobals();
 export default defineConfig({
   plugins: [remix(), tsconfigPaths()],
   resolve: {
-    alias: [{ find: "@", replacement: resolve(__dirname, "./src") }]
+    alias: [{ find: "@", replacement: resolve(__dirname, "./app") }]
   }
 });
