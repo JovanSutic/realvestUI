@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
 import { Column, Line, Page } from "../components/layout";
-import MainReport from "../widgets/MainReport";
+import MainReport from "~/widgets/MainReport";
 import { json } from "@remix-run/node";
 import { createClient } from "@supabase/supabase-js";
 import {useLoaderData, useSearchParams } from "@remix-run/react";
